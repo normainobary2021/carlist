@@ -10,11 +10,22 @@ import { Button } from '../ui/button';
 import useLoginDialog from '@/hooks/use-login-dialog';
 import useRegisterDialog from '@/hooks/use-register-dialog';
 import { loginSchema } from '@/validation/auth.validation';
+import { loginMutationFn } from '@/lib/fetcher';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from '@/hooks/use-toast';
+import { Loader } from 'lucide-react';
 
 const LoginDialog = () => {
 
     const { open, onClose } = useLoginDialog();
-    const { onOpen  } = useRegisterDialog()
+    const { onOpen  } = useRegisterDialog();
+
+    const queryClient = useQueryClient();
+
+    const { mutate, isPending } = useMutation({
+        mutationFn: loginMutationFn,
+    });
+
     const form = useForm<z.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
@@ -24,7 +35,28 @@ const LoginDialog = () => {
     });
 
     const onSubmit = (values: z.infer<typeof loginSchema>) => {
-        console.log(values);
+        mutate(values, {
+            onSuccess: () => {
+                queryClient.refetchQueries({
+                    queryKey: ["currentUser"],
+                });
+
+                toast({
+                    title: "Login successful",
+                    description: "You have successfully logged in",
+                    variant: "success"
+                })
+                onClose();
+            },
+            onError: () => {
+
+                toast({
+                    title: "Login failed",
+                    description: "Login failed. Please try again",
+                    variant: "destructive"
+                })
+            },
+        });
     }
 
     const handleRegisterOpen = () => {
@@ -66,7 +98,10 @@ const LoginDialog = () => {
                             </FormItem>
                         )} />
 
-                        <Button size="lg" className='w-full' type="submit" >Login</Button>
+                        <Button disabled={isPending} size="lg" className='w-full' type="submit" >
+                            {isPending && <Loader  className='w-4 h-4 animate-spin' />}
+                            Login
+                        </Button>
 
                     </form>
 

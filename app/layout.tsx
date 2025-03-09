@@ -6,10 +6,11 @@ import RegisterDialog from "@/components/auth/RegisterDialog";
 
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import LoginDialog from "@/components/auth/LoginDialog";
+import QueryProvider from "@/context/query-provider";
 
 export const metadata: Metadata = {
   title: "Car List App",
-  description: "Best Seller Car List App",
+  description: "Best Car Seller Listing App",
 };
 
 export default function RootLayout({
@@ -22,11 +23,13 @@ export default function RootLayout({
       <body
         className={`bg-[#ebf2f7] antialiased`}
       >
-        <NuqsAdapter>
-          <RegisterDialog />
-          <LoginDialog />
-          {children}
-        </NuqsAdapter>
+        <QueryProvider>
+          <NuqsAdapter>
+            <RegisterDialog />
+            <LoginDialog />
+            {children}
+          </NuqsAdapter>
+        </QueryProvider>
         <Toaster />
       </body>
     </html>
