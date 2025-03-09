@@ -58,7 +58,7 @@ const HeroFilter = () => {
                 params.append(key, value)
             }
         });
-        console.log(params);
+        // console.log(params);
         router.push(`/search/${params.toString()}`);
     }
 
